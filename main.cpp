@@ -11,11 +11,10 @@ int main(){
     int size = 10;
 
     // Initialize the map with some tiles
-    for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            map.setTile(i, j, (i+j) % 4, 1600, 900, size); // Example tile setting
-        }
-    }
+  
+  sf::Vector2i defaultPos(0,0);
+  map.setTile(size, size, 0, 1600, 900, size, defaultPos); // Example tile setting
+
   while(window.isOpen()){
     sf::Event e;
     while(window.pollEvent(e)){
@@ -24,9 +23,8 @@ int main(){
       }
     }
     window.clear();
-    window.draw(map);
+    map.updateAndDraw(window);
     window.display();
-
   }
   return 0;
 }
