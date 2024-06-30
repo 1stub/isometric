@@ -12,24 +12,30 @@ void Map::loadTileset(const std::string& tilesetPath) {
     }
 }
 
-void Map::setTile(int x, int y, int tileNumber) {
+void Map::setTile(int x, int y, int tileNumber, float screenWidth, float screenHeight, int mapWidth) {
     tiles[x][y] = tileNumber;
 
     sf::Vertex* quad = &vertices[(x + y * width) * 4];
+    //need to move these elsewhere to avoid extra calculations
+    sf::Vector2f screenCenter(screenWidth/2, screenHeight/2);
+    sf::Vector2f mapCenter((mapWidth - 1) * tileSize / 2.0f, (mapWidth - 1) * tileSize / 2.0f);
+    sf::Vector2f offset = screenCenter - mapCenter;
+    //Converts our X and Y values (cooresponding to tile entry in vector) to isometric coords
+    sf::Vector2f pos = toIso(x, y) + offset;
+    
+    // Set the positions of the 4 corners of the quad in isometric space
+    quad[0].position = pos;
+    quad[1].position = sf::Vector2f(pos.x + tileSize, pos.y);
+    quad[2].position = sf::Vector2f(pos.x + tileSize, pos.y + tileSize);
+    quad[3].position = sf::Vector2f(pos.x, pos.y + tileSize);
 
-    int tu = 0;
-    int tv = 0;
-
-    quad[0].position = sf::Vector2f(x * tileSize, y * tileSize);
-    quad[1].position = sf::Vector2f((x + 1) * tileSize, y * tileSize);
-    quad[2].position = sf::Vector2f((x + 1) * tileSize, (y + 1) * tileSize);
-    quad[3].position = sf::Vector2f(x * tileSize, (y + 1) * tileSize);
-
-    quad[0].texCoords = sf::Vector2f(tu, tv);
-    quad[1].texCoords = sf::Vector2f(tu + tileSize, tv);
-    quad[2].texCoords = sf::Vector2f(tu + tileSize, tv + tileSize);
-    quad[3].texCoords = sf::Vector2f(tu, tv + tileSize);
+    // Set the texture coordinates (assuming the whole texture is used for each tile)
+    quad[0].texCoords = sf::Vector2f(0, 0);
+    quad[1].texCoords = sf::Vector2f(tileSize, 0);
+    quad[2].texCoords = sf::Vector2f(tileSize, tileSize);
+    quad[3].texCoords = sf::Vector2f(0, tileSize);
 }
+
 
 int Map::getTile(int x, int y) const {
     return tiles[x][y];
@@ -43,7 +49,8 @@ void Map::transformTile(int x, int y, const sf::Transform& transform) {
 }
 
 sf::Vector2f Map::toIso(float x, float y) {
-    return sf::Vector2f(x + y, (y - x) / 2);
+    return sf::Vector2f((x - y) * (tileSize / 2.0f), (x + y) * (tileSize / 4.0f));
+
 }
 
 void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const {
