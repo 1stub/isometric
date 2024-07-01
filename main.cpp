@@ -10,10 +10,8 @@ int main(){
     
     int size = 10;
 
-    // Initialize the map with some tiles
-  
-  sf::Vector2i defaultPos(0,0);
-  map.setTile(size, size, 0, 1600, 900, size, defaultPos); // Example tile setting
+  // Initialize the map with some tiles  
+  map.setTile(size, size, 0, 1600, 900, size); // Example tile setting
 
   while(window.isOpen()){
     sf::Event e;
