@@ -1,15 +1,15 @@
 #include "map.h"
 #include <SFML/System/Vector2.hpp>
+#include <iostream>
 
 Map::Map(int w, int h, int tSize) : width(w), height(h), tileSize(tSize) {
-    tiles.resize(width, std::vector<int>(height, 0)); // Initialize tiles with 0
+    tiles.resize(width, std::vector<double>(height, 0)); // Initialize tiles with 0
     vertices.setPrimitiveType(sf::Quads);
     vertices.resize(width * height * 4); // 4 vertices per tile
     int mapWidth = w;
 
     screenCenter = sf::Vector2f(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
     mapCenter = sf::Vector2f((mapWidth - 1) * tileSize / 2.0f, (mapWidth - 1) * tileSize / 2.0f);
-    offset = (screenCenter - mapCenter);
 }
 
 void Map::loadTileset(const std::string& tilesetPath) {
@@ -18,11 +18,13 @@ void Map::loadTileset(const std::string& tilesetPath) {
     }
 }
 
-void Map::setTile(int x, int y, int tileNumber, float screenWidth, float screenHeight, int mapWidth) {
+void Map::setTile(int x, int y, Perlin &p, float screenWidth, float screenHeight, int mapWidth) {
   //Converts our X and Y values (cooresponding to tile entry in vector) to isometric coords
   for (int i = 0; i < x; ++i) {
     for (int j = 0; j < y; ++j) {
-    tiles[i][j] = tileNumber;
+    double noiseValue = p.noise(i * 0.05, j * 0.05, 0, 4, 0.5);; 
+    tiles[i][j] = noiseValue;
+    std::cout << "Perlin noise at (" << i << ", " << j << ", 0): " << noiseValue << std::endl;
 
     sf::Vertex* quad = &vertices[(i + j * width) * 4];
 
@@ -38,9 +40,29 @@ void Map::setTile(int x, int y, int tileNumber, float screenWidth, float screenH
     quad[1].texCoords = sf::Vector2f(tileSize, 0);
     quad[2].texCoords = sf::Vector2f(tileSize, tileSize);
     quad[3].texCoords = sf::Vector2f(0, tileSize);
+
+    quad[0].position.y *= noiseValue;
+    quad[1].position.y *= noiseValue;
+    quad[2].position.y *= noiseValue;
+    quad[3].position.y *= noiseValue;
     }
   }
 }
+
+void Map::moveTile(int x, int y) {
+  //Converts our X and Y values (cooresponding to tile entry in vector) to isometric coords
+  for (int i = 0; i < x; ++i) {
+    for (int j = 0; j < y; ++j) {
+      sf::Vertex* quad = &vertices[(i + j * width) * 4];
+      
+      quad[0].position += offset;
+      quad[1].position += offset;
+      quad[2].position += offset; 
+      quad[3].position += offset; 
+    }
+  }
+}
+
 
 
 int Map::getTile(int x, int y) const {
@@ -73,8 +95,8 @@ void Map::updateAndDraw(sf::RenderTarget& target){
         if (!isDragging) isDragging = true;  // Mouse is now being held down
         
         sf::Vector2i posDif = currentPos - previousMousePos; 
-        offset += sf::Vector2f(posDif.x, posDif.y);
-        setTile(64, 64, 0, 1600, 900, 10);
+        offset = sf::Vector2f(posDif.x, posDif.y);
+        moveTile(64, 64);
     } else {
         isDragging = false;  // Mouse button is released
     }

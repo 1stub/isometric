@@ -1,5 +1,4 @@
 #include "perlin.h"
-
 const int Perlin::permutation[256] = {  151,160,137,91,90,15,                 // Hash lookup table as defined by Ken Perlin.  This is a randomly
       131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,    // arranged array of all numbers from 0-255 inclusive.
       190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
@@ -36,6 +35,22 @@ double Perlin::lerp(double a, double b, double x) {
     return a + x * (b - a);
 }
 
+double Perlin::noise(double x, double y, double z, int octaves, double persistence){
+  double total = 0;
+  double frequency = 1;
+  double amplitude = 1;
+  double maxValue = 0;
+  for(int i = 0; i < octaves; i++){
+    total += perlin(x * frequency, y * frequency, z * frequency) * amplitude;
+			
+		maxValue += amplitude;
+			
+		amplitude *= persistence;
+		frequency *= 2;
+  }
+  return total/maxValue;
+}
+
 double Perlin::grad(int hash, double x, double y, double z)
 {
     switch(hash & 0xF)
@@ -62,11 +77,11 @@ double Perlin::grad(int hash, double x, double y, double z)
 
 
 double Perlin::perlin(double x, double y, double z){
-  /*if(repeat > 0) {                                    // If we have any repeat on, change the coordinates to their "local" repetitions
-        x = x%repeat;
-        y = y%repeat;
-        z = z%repeat;
-  }*/
+  if(repeat > 0) {                                    // If we have any repeat on, change the coordinates to their "local" repetitions
+        x = int(x)%repeat;
+        y = int(y)%repeat;
+        z = int(z)%repeat;
+  }
   int xi = (int)x & 255;                              // Calculate the "unit cube" that the point asked will be located in
   int yi = (int)y & 255;                              // The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
   int zi = (int)z & 255;                              // plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
