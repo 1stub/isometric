@@ -74,7 +74,7 @@ void Map::updateAndDraw(sf::RenderTarget& target){
         
         sf::Vector2i posDif = currentPos - previousMousePos; 
         offset += sf::Vector2f(posDif.x, posDif.y);
-        setTile(10, 10, 0, 1600, 900, 10);
+        setTile(64, 64, 0, 1600, 900, 10);
     } else {
         isDragging = false;  // Mouse button is released
     }
