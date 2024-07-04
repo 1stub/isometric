@@ -1,19 +1,13 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
-#include "map.h"
+#include "chunkManager.h"
 
 int main(){
-  sf::RenderWindow window(sf::VideoMode(1600, 900), "Topdown", sf::Style::Close);
-  Map map(64, 64, 32);
-  map.loadTileset("grass.png");
+  sf::RenderWindow window(sf::VideoMode(1600, 900), "Isometric", sf::Style::Close);
   
-  Perlin perlin; 
-
-  int size = 64;
-
-  // Initialize the map with some tiles  
-  map.setTile(size, size, perlin, 1600, 900, size); // Example tile setting
+  Perlin p;
+  chunkManager cm(p);
 
   while(window.isOpen()){
     sf::Event e;
@@ -23,7 +17,7 @@ int main(){
       }
     }
     window.clear();
-    map.updateAndDraw(window);
+    cm.update(window);
     window.display();
   }
   return 0;

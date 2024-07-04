@@ -1,3 +1,6 @@
+#ifndef PERLIN_H
+#define PERLIN_H
+
 #include <SFML/Graphics.hpp>
 
 // all code credited to https://adrianb.io/2014/08/09/perlinnoise.html wonderful article.
@@ -18,3 +21,5 @@ class Perlin{
    int p[512];
    int repeat = -1;
 };
+
+#endif

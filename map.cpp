@@ -3,6 +3,7 @@
 #include <iostream>
 
 Map::Map(int w, int h, int tSize) : width(w), height(h), tileSize(tSize) {
+  loadTileset("grass.png");
     tiles.resize(width, std::vector<int>(height, 0)); // Initialize tiles with 0
     vertices.setPrimitiveType(sf::Quads);
     vertices.resize(width * height * 4); // 4 vertices per tile
@@ -18,11 +19,13 @@ void Map::loadTileset(const std::string& tilesetPath) {
     }
 }
 
-void Map::setTile(int x, int y, Perlin &p, float screenWidth, float screenHeight, int mapWidth) {
+void Map::setTile(int x, int y, int xCoord, int yCoord ,Perlin &p, float screenWidth, float screenHeight, int mapWidth) {
   //Converts our X and Y values (cooresponding to tile entry in vector) to isometric coords
-  for (int i = 0; i < x; ++i) {
-    for (int j = 0; j < y; ++j) {
-      double noiseValue = p.noise((i + 1) * 0.05, (j + 1) * 0.05, 1, 2, 0.5);; 
+  for (int i = 0; i < mapWidth; ++i) {
+    xCoord++;
+    for (int j = 0; j < mapWidth; ++j) {
+      yCoord++;
+      double noiseValue = p.noise((double)xCoord * 0.05, (double)yCoord * 0.05, 1, 2, 0.5); 
       tiles[i][j] = (int)(noiseValue*8);
       std::cout << "Perlin noise at (" << i << ", " << j << ", 0): " << tiles[i][j] << std::endl;
 
@@ -93,7 +96,7 @@ void Map::updateAndDraw(sf::RenderTarget& target){
         
         sf::Vector2i posDif = currentPos - previousMousePos; 
         offset = sf::Vector2f(posDif.x, posDif.y);
-        moveTile(64, 64);
+        //moveTile(64, 64);
     } else {
         isDragging = false;  // Mouse button is released
     }

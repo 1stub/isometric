@@ -1,6 +1,4 @@
-#ifndef CHUNKMANAGER_H
-#define CHUNKMANAGER_H
-
+#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <memory>
 #include <unordered_map>
@@ -14,16 +12,13 @@
 
 class chunkManager{
   public:
-    chunkManager(Perlin &p);
+    chunkManager();
     void render(sf::RenderWindow& window);
     void update(sf::RenderWindow &window);
   
   private:
     std::unique_ptr<Chunk> createChunk(sf::Vector2i coords);
-    std::unordered_map<std::string, std::unique_ptr<Chunk>> chunks;
-    bool good = false;
+    std::unordered_map<sf::Vector2i, std::unique_ptr<Chunk>> chunks;
     int chunkSize;
-    Perlin &noise; //for terrain gen
+    Perlin noise; //for terrain gen
 };
-
-#endif
