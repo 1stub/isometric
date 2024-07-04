@@ -25,7 +25,7 @@ class Map : public sf::Drawable, public sf::Transformable{
     sf::Vector2i mousePos;
     sf::Vector2i initialMousePos;
     sf::Vector2i previousMousePos;
-    std::vector<std::vector<double>> tiles;
+    std::vector<std::vector<int>> tiles;
     sf::VertexArray vertices;            // Vertex array for rendering
     sf::Texture tileset;                 // Texture for the tiles
 

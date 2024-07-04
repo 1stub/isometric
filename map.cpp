@@ -3,7 +3,7 @@
 #include <iostream>
 
 Map::Map(int w, int h, int tSize) : width(w), height(h), tileSize(tSize) {
-    tiles.resize(width, std::vector<double>(height, 0)); // Initialize tiles with 0
+    tiles.resize(width, std::vector<int>(height, 0)); // Initialize tiles with 0
     vertices.setPrimitiveType(sf::Quads);
     vertices.resize(width * height * 4); // 4 vertices per tile
     int mapWidth = w;
@@ -22,29 +22,26 @@ void Map::setTile(int x, int y, Perlin &p, float screenWidth, float screenHeight
   //Converts our X and Y values (cooresponding to tile entry in vector) to isometric coords
   for (int i = 0; i < x; ++i) {
     for (int j = 0; j < y; ++j) {
-    double noiseValue = p.noise(i * 0.05, j * 0.05, 0, 4, 0.5);; 
-    tiles[i][j] = noiseValue;
-    std::cout << "Perlin noise at (" << i << ", " << j << ", 0): " << noiseValue << std::endl;
+      double noiseValue = p.noise((i + 1) * 0.05, (j + 1) * 0.05, 1, 2, 0.5);; 
+      tiles[i][j] = (int)(noiseValue*8);
+      std::cout << "Perlin noise at (" << i << ", " << j << ", 0): " << tiles[i][j] << std::endl;
 
-    sf::Vertex* quad = &vertices[(i + j * width) * 4];
+      sf::Vertex* quad = &vertices[(i + j * width) * 4];
 
-    sf::Vector2f pos = toIso(i, j) + offset;
-    // Set the positions of the 4 corners of the quad in isometric space
-    quad[0].position = pos;
-    quad[1].position = sf::Vector2f(pos.x + tileSize, pos.y);
-    quad[2].position = sf::Vector2f(pos.x + tileSize, pos.y + tileSize);
-    quad[3].position = sf::Vector2f(pos.x, pos.y + tileSize);
+      sf::Vector2f pos = toIso(i, j);
+      // Set the positions of the 4 corners of the quad in isometric space
+      quad[0].position = pos;
+      quad[1].position = sf::Vector2f(pos.x + tileSize, pos.y);
+      quad[2].position = sf::Vector2f(pos.x + tileSize, pos.y + tileSize);
+      quad[3].position = sf::Vector2f(pos.x, pos.y + tileSize);
 
-    // Set the texture coordinates (assuming the whole texture is used for each tile)
-    quad[0].texCoords = sf::Vector2f(0, 0);
-    quad[1].texCoords = sf::Vector2f(tileSize, 0);
-    quad[2].texCoords = sf::Vector2f(tileSize, tileSize);
-    quad[3].texCoords = sf::Vector2f(0, tileSize);
+      // Set the texture coordinates (assuming the whole texture is used for each tile)
+      quad[0].texCoords = sf::Vector2f(0, 0);
+      quad[1].texCoords = sf::Vector2f(tileSize, 0);
+      quad[2].texCoords = sf::Vector2f(tileSize, tileSize);
+      quad[3].texCoords = sf::Vector2f(0, tileSize);
 
-    quad[0].position.y *= noiseValue;
-    quad[1].position.y *= noiseValue;
-    quad[2].position.y *= noiseValue;
-    quad[3].position.y *= noiseValue;
+      //idea could be just stack tiles ontop of eachother, creating new vector for each layer
     }
   }
 }
