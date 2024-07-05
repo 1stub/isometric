@@ -19,19 +19,19 @@ void Map::loadTileset(const std::string& tilesetPath) {
     }
 }
 
-void Map::setTile(int x, int y, int xCoord, int yCoord ,Perlin &p, float screenWidth, float screenHeight, int mapWidth) {
-  //Converts our X and Y values (cooresponding to tile entry in vector) to isometric coords
-  for (int i = 0; i < mapWidth; ++i) {
-    xCoord++;
-    for (int j = 0; j < mapWidth; ++j) {
-      yCoord++;
-      double noiseValue = p.noise((double)xCoord * 0.05, (double)yCoord * 0.05, 1, 2, 0.5); 
+void Map::setTile(int x, int y, int xCoord, int yCoord ,Perlin &p, float screenWidth, float screenHeight, int chunkWidth) {
+  int startX = xCoord;
+  int startY = yCoord;
+  //set blocks within chunk
+  for (int i = 0; i < chunkWidth; ++i) {
+    for (int j = 0; j < chunkWidth; ++j) {
+      double noiseValue = p.noise((double)(startX+i) * 0.05, (double)(startY+j) * 0.05, 1, 2, 0.5); 
       tiles[i][j] = (int)(noiseValue*8);
       std::cout << "Perlin noise at (" << i << ", " << j << ", 0): " << tiles[i][j] << std::endl;
 
-      sf::Vertex* quad = &vertices[(i + j * width) * 4];
+      sf::Vertex* quad = &vertices[((i) + (j) * width) * 4];
 
-      sf::Vector2f pos = toIso(i, j);
+      sf::Vector2f pos = toIso(xCoord + i, yCoord + j);
       // Set the positions of the 4 corners of the quad in isometric space
       quad[0].position = pos;
       quad[1].position = sf::Vector2f(pos.x + tileSize, pos.y);
@@ -49,10 +49,10 @@ void Map::setTile(int x, int y, int xCoord, int yCoord ,Perlin &p, float screenW
   }
 }
 
-void Map::moveTile(int x, int y) {
+void Map::moveTile(int chunkSize) {
   //Converts our X and Y values (cooresponding to tile entry in vector) to isometric coords
-  for (int i = 0; i < x; ++i) {
-    for (int j = 0; j < y; ++j) {
+  for (int i = 0; i < chunkSize; ++i) {
+    for (int j = 0; j < chunkSize; ++j) {
       sf::Vertex* quad = &vertices[(i + j * width) * 4];
       
       quad[0].position += offset;
@@ -96,7 +96,7 @@ void Map::updateAndDraw(sf::RenderTarget& target){
         
         sf::Vector2i posDif = currentPos - previousMousePos; 
         offset = sf::Vector2f(posDif.x, posDif.y);
-        //moveTile(64, 64);
+        moveTile(16);
     } else {
         isDragging = false;  // Mouse button is released
     }
