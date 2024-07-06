@@ -6,6 +6,11 @@ Chunk::Chunk(int c) : chunkSize(c){
     std::cout << "couldnt load tile" << std::endl;
   }
   screenCenter = sf::Vector2f(SCREEN_WIDTH/2 - 16, SCREEN_HEIGHT/2 - 16);
+  loaded = true;
+}
+
+bool Chunk::isLoaded(){
+  return loaded;
 }
 
 void Chunk::setBlocks(int x, int y, Perlin &p){

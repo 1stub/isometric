@@ -1,4 +1,5 @@
 #include "chunkManager.h"
+#include <SFML/System/Vector2.hpp>
 #include <cmath>
 #include <utility>
 
@@ -6,6 +7,9 @@ const float i_x = 1;
 const float i_y = 0.5;
 const float j_x = -1;
 const float j_y = 0.5;
+
+const int w = 32;
+const int h = 32;
 
 chunkManager::chunkManager(Perlin &perlin) : p(perlin){
   for(int i = 0; i < 128; i+=16){
@@ -16,38 +20,35 @@ chunkManager::chunkManager(Perlin &perlin) : p(perlin){
       chunks.push_back(chunk);
     }
   }
-
+  screenCenter = sf::Vector2i(1600/2 , 900/2);
 }
 
 void chunkManager::update(sf::RenderWindow &window){
   render(window);
 }
 
-std::pair<std::pair<float,float>,std::pair<float,float>> invertMatrix(float a, float b, float c, float d){
-  const float det = (1/(a*d - b*c));
-  return std::pair<std::pair<float,float>,std::pair<float,float>>({det * d, det * -b}, {det * -c, det * a});
-}
-
-sf::Vector2f centerToGrid(){ //used to find center of screen on the grid, used for rendering chunks
-  const float a = i_x * 0.5 * 32;
-  const float b = j_x * 0.5 * 32;
-  const float c = i_y * 0.5 * 32;
-  const float d = j_y * 0.5 * 32;
-
-  std::pair<std::pair<float, float>, std::pair<float,float>> inv = invertMatrix(a,b,c,d);
-
-  sf::Vector2i mousePos = sf::Vector2i(1600/2, 900/2);
-
-  return sf::Vector2f(mousePos.x * inv.first.first + mousePos.y * inv.first.second,
-                      mousePos.x * inv.second.first + mousePos.y * inv.second.second  );
+sf::Vector2f isoToScreen(sf::Vector2i coord){ //converts game coords to px
+  return sf::Vector2f(coord.x * i_x * 0.5 * w + coord.y * j_x * 0.5 * w,
+                      coord.x * i_y * 0.5 * h + coord.y * j_y * 0.5 * h);
 }
 
 void chunkManager::render(sf::RenderWindow &window){
+    /*const float renderDistanceSquared = 1024 * 1024;
+
+    for (auto &chunk : chunks) {
+        sf::Vector2f chunkScreenCoord = isoToScreen(chunk.getCoords());
+        float a = chunkScreenCoord.x - screenCenter.x;
+        float b = chunkScreenCoord.y - screenCenter.y;
+        float distSquared = a * a + b * b;
+
+        if (distSquared < renderDistanceSquared) {
+          window.draw(chunk);
+        }
+    }*/
   for(auto &chunk : chunks){
-    //float a = centerToGrid().x - chunk.getCoords().x;
-    //float b = centerToGrid().y - chunk.getCoords().y;
-    // abs((double)sqrt(a*a + b*b)
-    window.draw(chunk);
+    if(chunk.isLoaded()){
+      window.draw(chunk);
+    }
   }
 }
 

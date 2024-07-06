@@ -7,6 +7,8 @@ class chunkManager{
     void update(sf::RenderWindow &window);
     void render(sf::RenderWindow &window);
   private:
+
+    sf::Vector2i screenCenter;
     std::vector<Chunk> chunks;
     Perlin &p;
 };

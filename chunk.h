@@ -7,6 +7,7 @@
 
 class Chunk : public sf::Transformable, public sf::Drawable{
   public:
+    bool isLoaded();
     Chunk(int c);
     void setBlocks(int x, int y,  Perlin &p); //sets all blocks in chunk object
     sf::Vector2i getCoords();
@@ -39,6 +40,7 @@ class Chunk : public sf::Transformable, public sf::Drawable{
     std::vector<sf::VertexArray> blocks;
     sf::Texture c_texture;
     float c_tileSize = 32; //32 pixels in one tile
+    bool loaded;
 };
 
 #endif
