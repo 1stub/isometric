@@ -3,8 +3,10 @@
 
 class chunkManager{
   public:
-    void update(Perlin &p);
+    chunkManager(Perlin &perlin);
+    void update(sf::RenderWindow &window);
     void render(sf::RenderWindow &window);
   private:
     std::vector<Chunk> chunks;
+    Perlin &p;
 };

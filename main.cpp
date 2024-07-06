@@ -5,9 +5,7 @@ int main(){
   sf::RenderWindow window(sf::VideoMode(1600, 900), "Isometric", sf::Style::Close);
 
   Perlin p;
-  chunkManager cm;
-
-  cm.update(p);
+  chunkManager cm(p);
 
   while(window.isOpen()){
     sf::Event e;
@@ -17,7 +15,7 @@ int main(){
       }
     }
     window.clear();
-    cm.render(window);
+    cm.update(window);
     window.display();
   }
   return 0;
