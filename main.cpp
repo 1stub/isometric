@@ -1,13 +1,13 @@
 #include <SFML/Graphics.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/System/Vector2.hpp>
 #include "chunkManager.h"
 
 int main(){
   sf::RenderWindow window(sf::VideoMode(1600, 900), "Isometric", sf::Style::Close);
-  
+
   Perlin p;
-  chunkManager cm(p);
+  chunkManager cm;
+
+  cm.update(p);
 
   while(window.isOpen()){
     sf::Event e;
@@ -17,7 +17,7 @@ int main(){
       }
     }
     window.clear();
-    cm.update(window);
+    cm.render(window);
     window.display();
   }
   return 0;

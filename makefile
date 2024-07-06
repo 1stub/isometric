@@ -4,7 +4,7 @@ LDFLAGS = -L/home/stub/repos/SFML/build/lib
 LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
 # List your source files here
-SOURCES =  perlin.cpp map.cpp chunk.cpp chunkManager.cpp main.cpp
+SOURCES =  perlin.cpp chunk.cpp chunkManager.cpp main.cpp
 # Generate a list of object files from the source files
 OBJECTS = $(SOURCES:.cpp=.o)
 
