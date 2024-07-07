@@ -1,5 +1,7 @@
 #include "chunkManager.h"
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Mouse.hpp>
+#include <sstream>
 #include <cmath>
 #include <utility>
 
@@ -18,9 +20,18 @@ chunkManager::chunkManager(Perlin &perlin) : p(perlin){
       chunk.setBlocks(i,j,p);
       chunk.scale(0.25f, 0.25f);
       chunks.push_back(chunk);
+      std::cout << isoToScreen(chunk.getCoords()).x << std::endl;
     }
   }
   screenCenter = sf::Vector2i(1600/2 , 900/2);
+
+  if (!font.loadFromFile("Eight-Bit Madness.ttf")) {
+    std::cout << "font err" << std::endl;
+  }
+  text.setFont(font);
+  text.setCharacterSize(24);
+  text.setFillColor(sf::Color::White);
+  text.setPosition(10, 10);
 }
 
 void chunkManager::update(sf::RenderWindow &window, sf::View &view, sf::Time deltaTime){
@@ -38,11 +49,19 @@ void chunkManager::update(sf::RenderWindow &window, sf::View &view, sf::Time del
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
     view.move(moveSpeed * deltaTime.asSeconds(), 0);
   }
+ 
+  std::ostringstream oss;
+  sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+  oss << "Mouse Position: (" << mousePos.x << ", " << mousePos.y << ")";
+  text.setString(oss.str());
+  sf::Vector2f viewTopLeft = window.mapPixelToCoords(sf::Vector2i(0, 0));
+  text.setPosition(viewTopLeft.x + 10, viewTopLeft.y + 10);
 
+  window.draw(text);
   window.setView(view);
 }
 
-sf::Vector2f isoToScreen(sf::Vector2i coord){ //converts game coords to px
+sf::Vector2f chunkManager::isoToScreen(sf::Vector2i coord){ //converts game coords to px
   return sf::Vector2f(coord.x * i_x * 0.5 * w + coord.y * j_x * 0.5 * w,
                       coord.x * i_y * 0.5 * h + coord.y * j_y * 0.5 * h);
 }
