@@ -11,6 +11,7 @@ class Chunk : public sf::Transformable, public sf::Drawable{
     Chunk(int c);
     void setBlocks(int x, int y,  Perlin &p); //sets all blocks in chunk object
     sf::Vector2i getCoords();
+    sf::Vector2f getScreenCoords();
   private:
     sf::Vector2f toIso(float x, float y); 
 
@@ -34,7 +35,8 @@ class Chunk : public sf::Transformable, public sf::Drawable{
     int chunkSize;
     int c_x;
     int c_y;
-
+    
+    sf::Vector2f chunkStartingPos;
     sf::Vector2f screenCenter;
     std::vector<Point3D> coords; // this is specifically used for noise
     std::vector<sf::VertexArray> blocks;
