@@ -5,8 +5,11 @@ int main(){
   sf::RenderWindow window(sf::VideoMode(1600, 900), "Isometric", sf::Style::Close);
 
   Perlin p;
+  sf::View view(sf::FloatRect(0,0,1600,900));
   chunkManager cm(p);
 
+  sf::Clock clock;
+  
   while(window.isOpen()){
     sf::Event e;
     while(window.pollEvent(e)){
@@ -14,8 +17,10 @@ int main(){
         window.close();
       }
     }
+    sf::Time deltaTime = clock.restart();
+    
     window.clear();
-    cm.update(window);
+    cm.update(window, view, deltaTime);
     window.display();
   }
   return 0;

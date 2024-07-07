@@ -23,8 +23,23 @@ chunkManager::chunkManager(Perlin &perlin) : p(perlin){
   screenCenter = sf::Vector2i(1600/2 , 900/2);
 }
 
-void chunkManager::update(sf::RenderWindow &window){
+void chunkManager::update(sf::RenderWindow &window, sf::View &view, sf::Time deltaTime){
   render(window);
+  
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
+    view.move(0, -moveSpeed * deltaTime.asSeconds());
+  }
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
+    view.move(-moveSpeed * deltaTime.asSeconds(), 0);
+  }
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
+    view.move(0, moveSpeed * deltaTime.asSeconds());
+  }
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+    view.move(moveSpeed * deltaTime.asSeconds(), 0);
+  }
+
+  window.setView(view);
 }
 
 sf::Vector2f isoToScreen(sf::Vector2i coord){ //converts game coords to px
