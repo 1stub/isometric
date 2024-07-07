@@ -13,7 +13,7 @@ bool Chunk::isLoaded(){
   return loaded;
 }
 
-void Chunk::setBlocks(int x, int y, Perlin &p){
+void Chunk::setBlocks(int x, int y, const siv::PerlinNoise& p){
   c_x = x;
   c_y = y;
 
@@ -21,10 +21,13 @@ void Chunk::setBlocks(int x, int y, Perlin &p){
   chunkStartingPos = (toIso(x,y) + (sf::Vector2f(screenCenter.x*4, screenCenter.y * 4  - toIso(64,64).y)))/4.0f;
   for(int i = 0; i < chunkSize; ++i){
     for(int j = 0; j < chunkSize; ++j){
-      double noiseValue = p.noise((double)(x+i) * 0.05, (double)(y+j) * 0.05, 1, 2, 0.5);
+      double noiseValue = p.octave2D_01(((x + i) * 0.01), ((y + j) * 0.01), 4);
       double height  = (noiseValue * 10);
+     
+      std::cout << (int)height << std::endl;
       coords.push_back({x+i, y+j, (int)height}); 
       sf::VertexArray column(sf::Quads, (int)height * 4); 
+      
       for(int k = 0; k < (int)height; ++k){
         sf::Vertex* quad = &column[k*4];
         sf::Vector2f pos = toIso(x + i, y + j) + (sf::Vector2f(screenCenter.x*4, screenCenter.y * 4  - toIso(64,64).y)) - sf::Vector2f(0, k*(c_tileSize/2));
@@ -40,10 +43,10 @@ void Chunk::setBlocks(int x, int y, Perlin &p){
         quad[3].texCoords = sf::Vector2f(0, c_tileSize);
 
         /*std::cout << "Block at (" << x + i << ", " << y + j << ") -> Screen Pos: (" << pos.x << ", " << pos.y << ")" << std::endl;*/
-}
+      }
       blocks.push_back(column);
     }
-    std::cout << chunkStartingPos.x << " " << chunkStartingPos.y << std::endl;
+    //std::cout << chunkStartingPos.x << " " << chunkStartingPos.y << std::endl;
   }
 }
 

@@ -4,7 +4,10 @@
 int main(){
   sf::RenderWindow window(sf::VideoMode(1600, 900), "Isometric", sf::Style::Close);
 
-  Perlin p;
+	const siv::PerlinNoise::seed_type seed = 123456u;
+
+	const siv::PerlinNoise p{ seed };
+
   sf::View view(sf::FloatRect(0,0,1600,900));
   chunkManager cm(p);
 

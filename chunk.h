@@ -3,13 +3,13 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
-#include "perlin.h"
+#include "perlin.hpp"
 
 class Chunk : public sf::Transformable, public sf::Drawable{
   public:
     bool isLoaded();
     Chunk(int c);
-    void setBlocks(int x, int y,  Perlin &p); //sets all blocks in chunk object
+    void setBlocks(int x, int y, const siv::PerlinNoise& p); //sets all blocks in chunk object
     sf::Vector2i getCoords();
     sf::Vector2f getScreenCoords();
   private:

@@ -2,27 +2,13 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <sstream>
-#include <cmath>
-#include <utility>
-
-const float i_x = 1;
-const float i_y = 0.5;
-const float j_x = -1;
-const float j_y = 0.5;
+#include <string>
 
 const int w = 32;
 const int h = 32;
 
-chunkManager::chunkManager(Perlin &perlin) : p(perlin){
+chunkManager::chunkManager(const siv::PerlinNoise &perlin) : p(perlin){
   screenCenter = sf::Vector2f(SCREEN_WIDTH/2 - 16, SCREEN_HEIGHT/2 - 16);
-  for(int i = 0; i < 128; i+=16){
-    for(int j = 0; j < 128; j+=16){
-      auto chunk = Chunk(16);
-      chunk.setBlocks(i,j,p);
-      chunk.scale(0.25f, 0.25f);
-      chunks.push_back(chunk);
-    }
-  }
 
   if (!font.loadFromFile("Eight-Bit Madness.ttf")) {
     std::cout << "font err" << std::endl;
@@ -31,6 +17,24 @@ chunkManager::chunkManager(Perlin &perlin) : p(perlin){
   text.setCharacterSize(24);
   text.setFillColor(sf::Color::White);
   text.setPosition(10, 10);
+
+  loadChunks();
+}
+
+void chunkManager::loadChunks(){
+  for(int i = -renderLimit; i < renderLimit; i++){
+    for(int j = -renderLimit; j < renderLimit; j++){
+      auto chunk = std::make_shared<Chunk>(16);
+      chunk->setBlocks(i*16,j*16, p);
+      chunk->scale(0.25f, 0.25f);
+      std::string coord = std::to_string(i) + "," + std::to_string(j);
+      chunks.push_back({coord, chunk});
+    }
+  }
+      std::cout << "Total chunks loaded: " << chunks.size() << std::endl;
+    for (const auto& pair : chunks) {
+        std::cout << "Chunk at key: " << pair.first << std::endl;
+    }
 
 }
 
@@ -63,17 +67,8 @@ void chunkManager::update(sf::RenderWindow &window, sf::View &view, sf::Time del
 }
 
 void chunkManager::render(sf::RenderWindow &window){
-    const float renderDistanceSquared = 512 * 512;
-
-    for (auto &chunk : chunks) {
-        sf::Vector2f chunkScreenCoord = chunk.getScreenCoords();
-        float a = chunkScreenCoord.x - screenCenter.x;
-        float b = chunkScreenCoord.y - screenCenter.y;
-        float distSquared = a * a + b * b;
-
-        if (distSquared < renderDistanceSquared) {
-          window.draw(chunk);
-        }
-    }
+  for (auto &pair : chunks) {
+    window.draw(*pair.second);
+  }
 }
 
