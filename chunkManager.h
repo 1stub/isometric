@@ -17,6 +17,7 @@ class chunkManager{
     const float moveSpeed = 200.0f; // pixels per second
     sf::Vector2f screenCenter;
     std::vector<std::pair<std::pair<int,int>, std::shared_ptr<Chunk>>> chunks; //had to use a vector to avoid hashing issues
+    std::vector<std::pair<std::pair<int,int>, std::shared_ptr<Chunk>>> newChunks;
     const siv::PerlinNoise &p;
     sf::Vector2i playerPosition;
 

@@ -7,6 +7,12 @@
 const int w = 32;
 const int h = 32;
 
+
+bool sortByFirst(const std::pair<std::pair<int,int>, std::shared_ptr<Chunk>>& a,
+                 const std::pair<std::pair<int,int>, std::shared_ptr<Chunk>>& b) {
+    return a.first < b.first;
+}
+
 chunkManager::chunkManager(const siv::PerlinNoise &perlin) : p(perlin){
   screenCenter = sf::Vector2f(SCREEN_WIDTH/2 - 16, SCREEN_HEIGHT/2 - 16);
   playerPosition = sf::Vector2i(0,0);
@@ -21,16 +27,19 @@ chunkManager::chunkManager(const siv::PerlinNoise &perlin) : p(perlin){
 }
 
 void chunkManager::loadChunks(sf::Vector2i offset){
+  chunks.clear();
     for (int i = offset.x - renderLimit; i < offset.x + renderLimit; ++i) {
         for (int j = offset.y - renderLimit; j < offset.y + renderLimit; ++j) {
 
             // Check if the chunk already exists
             bool chunkExists = false;
             for (auto chunk = chunks.begin(); chunk != chunks.end(); chunk++) {
+
+              //std::cout << "Found chunk at coordinates: (" << chunk->first.first << ", " << chunk->first.second << ")" << std::endl;
               if(std::abs(offset.x - chunk->first.first) > renderLimit ||std::abs(offset.y - chunk->first.second) > renderLimit){
                 chunks.erase(chunk);
               }
-              if (chunk->first == std::pair(i,j)) {
+              if (chunk->first == std::make_pair(i,j)) {
                   chunkExists = true;
                   break;
               }
@@ -41,19 +50,20 @@ void chunkManager::loadChunks(sf::Vector2i offset){
                 auto chunk = std::make_shared<Chunk>(16);
                 chunk->setBlocks(i * 16 + offset.x, j * 16 + offset.y, p);
                 chunk->scale(0.25f, 0.25f);
-                chunks.push_back({std::pair(i,j), chunk});
+                chunks.push_back({std::make_pair(i,j), chunk});
             }
         }
     }
-
 }
-
+sf::Vector2i toIso(int x, int y) {
+    return sf::Vector2i((x - y) * 16, (x + y) * 8);
+}
 void chunkManager::update(sf::RenderWindow &window, sf::View &view, sf::Time deltaTime){
-  int chunkX = playerPosition.x/16;
-  int chunkY = playerPosition.y/16;
- 
-  loadChunks(sf::Vector2i(chunkX, chunkY));
+  int chunkX = playerPosition.x;
+  int chunkY = playerPosition.y;
 
+  std::cout << chunkX << " " << chunkY << std::endl;
+ 
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
     playerPosition.y += -1;
   }
@@ -67,9 +77,10 @@ void chunkManager::update(sf::RenderWindow &window, sf::View &view, sf::Time del
     playerPosition.x += 1;
   }
  
-  view.setCenter(sf::Vector2f(playerPosition.x, playerPosition.y) + screenCenter);
+  
+  loadChunks(sf::Vector2i(chunkX, chunkY));
 
-  std::cout << playerPosition.x << ", " << playerPosition.y << std::endl;
+  view.setCenter(sf::Vector2f(playerPosition.x, playerPosition.y) + screenCenter);
 
   //prints mouse pos to top left for debugging
   std::ostringstream oss;
@@ -85,11 +96,10 @@ void chunkManager::update(sf::RenderWindow &window, sf::View &view, sf::Time del
   render(window);
 }
 
-void chunkManager::render(sf::RenderWindow &window){
-  //std::sort(chunks.begin(), chunks.end());
-
+void chunkManager::render(sf::RenderWindow &window){ 
   for (auto &pair : chunks) { 
-      window.draw(*pair.second);
+    window.draw(*pair.second);
   }
+  newChunks.clear();
 }
 
