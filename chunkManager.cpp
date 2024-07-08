@@ -9,7 +9,7 @@ const int h = 32;
 
 chunkManager::chunkManager(const siv::PerlinNoise &perlin) : p(perlin){
   screenCenter = sf::Vector2f(SCREEN_WIDTH/2 - 16, SCREEN_HEIGHT/2 - 16);
-
+  playerPosition = sf::Vector2i(0,0);
   if (!font.loadFromFile("Eight-Bit Madness.ttf")) {
     std::cout << "font err" << std::endl;
   }
@@ -18,42 +18,59 @@ chunkManager::chunkManager(const siv::PerlinNoise &perlin) : p(perlin){
   text.setFillColor(sf::Color::White);
   text.setPosition(10, 10);
 
-  loadChunks();
 }
 
-void chunkManager::loadChunks(){
-  for(int i = -renderLimit; i < renderLimit; i++){
-    for(int j = -renderLimit; j < renderLimit; j++){
-      auto chunk = std::make_shared<Chunk>(16);
-      chunk->setBlocks(i*16,j*16, p);
-      chunk->scale(0.25f, 0.25f);
-      std::string coord = std::to_string(i) + "," + std::to_string(j);
-      chunks.push_back({coord, chunk});
-    }
-  }
-      std::cout << "Total chunks loaded: " << chunks.size() << std::endl;
-    for (const auto& pair : chunks) {
-        std::cout << "Chunk at key: " << pair.first << std::endl;
+void chunkManager::loadChunks(sf::Vector2i offset){
+    for (int i = offset.x - renderLimit; i < offset.x + renderLimit; ++i) {
+        for (int j = offset.y - renderLimit; j < offset.y + renderLimit; ++j) {
+
+            // Check if the chunk already exists
+            bool chunkExists = false;
+            for (auto chunk = chunks.begin(); chunk != chunks.end(); chunk++) {
+              if(std::abs(offset.x - chunk->first.first) > renderLimit ||std::abs(offset.y - chunk->first.second) > renderLimit){
+                chunks.erase(chunk);
+              }
+              if (chunk->first == std::pair(i,j)) {
+                  chunkExists = true;
+                  break;
+              }
+            }
+
+            // If the chunk does not exist, create and add it
+            if (!chunkExists) {
+                auto chunk = std::make_shared<Chunk>(16);
+                chunk->setBlocks(i * 16 + offset.x, j * 16 + offset.y, p);
+                chunk->scale(0.25f, 0.25f);
+                chunks.push_back({std::pair(i,j), chunk});
+            }
+        }
     }
 
 }
 
 void chunkManager::update(sf::RenderWindow &window, sf::View &view, sf::Time deltaTime){
-  render(window);
-  
+  int chunkX = playerPosition.x/16;
+  int chunkY = playerPosition.y/16;
+ 
+  loadChunks(sf::Vector2i(chunkX, chunkY));
+
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
-    view.move(0, -moveSpeed * deltaTime.asSeconds());
+    playerPosition.y += -1;
   }
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
-    view.move(-moveSpeed * deltaTime.asSeconds(), 0);
+    playerPosition.x += -1;
   }
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
-    view.move(0, moveSpeed * deltaTime.asSeconds());
+    playerPosition.y += 1;
   }
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
-    view.move(moveSpeed * deltaTime.asSeconds(), 0);
+    playerPosition.x += 1;
   }
-  
+ 
+  view.setCenter(sf::Vector2f(playerPosition.x, playerPosition.y) + screenCenter);
+
+  std::cout << playerPosition.x << ", " << playerPosition.y << std::endl;
+
   //prints mouse pos to top left for debugging
   std::ostringstream oss;
   sf::Vector2i mousePos = sf::Mouse::getPosition(window);
@@ -64,11 +81,15 @@ void chunkManager::update(sf::RenderWindow &window, sf::View &view, sf::Time del
 
   window.draw(text);
   window.setView(view);
+
+  render(window);
 }
 
 void chunkManager::render(sf::RenderWindow &window){
-  for (auto &pair : chunks) {
-    window.draw(*pair.second);
+  //std::sort(chunks.begin(), chunks.end());
+
+  for (auto &pair : chunks) { 
+      window.draw(*pair.second);
   }
 }
 

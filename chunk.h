@@ -12,6 +12,7 @@ class Chunk : public sf::Transformable, public sf::Drawable{
     void setBlocks(int x, int y, const siv::PerlinNoise& p); //sets all blocks in chunk object
     sf::Vector2i getCoords();
     sf::Vector2f getScreenCoords();
+    bool containsPlayer(sf::Vector2i player);
   private:
     sf::Vector2f toIso(float x, float y); 
 

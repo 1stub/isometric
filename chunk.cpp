@@ -30,7 +30,7 @@ void Chunk::setBlocks(int x, int y, const siv::PerlinNoise& p){
       
       for(int k = 0; k < (int)height; ++k){
         sf::Vertex* quad = &column[k*4];
-        sf::Vector2f pos = toIso(x + i, y + j) + (sf::Vector2f(screenCenter.x*4, screenCenter.y * 4  - toIso(64,64).y)) - sf::Vector2f(0, k*(c_tileSize/2));
+        sf::Vector2f pos = toIso(x + i, y + j) + (sf::Vector2f(screenCenter.x*4, screenCenter.y * 4)) - sf::Vector2f(0, k*(c_tileSize/2));
         // Set the positions of the 4 corners of the quad in isometric space
         quad[0].position = pos;
         quad[1].position = sf::Vector2f(pos.x + c_tileSize, pos.y);
@@ -48,6 +48,15 @@ void Chunk::setBlocks(int x, int y, const siv::PerlinNoise& p){
     }
     //std::cout << chunkStartingPos.x << " " << chunkStartingPos.y << std::endl;
   }
+}
+
+bool Chunk::containsPlayer(sf::Vector2i player){
+    sf::Vector2f bottomLeftBound = sf::Vector2f(chunkStartingPos.x, chunkStartingPos.y - 16);
+    sf::Vector2f bottomRightBound = sf::Vector2f(chunkStartingPos.x + 16, chunkStartingPos.y - 16);
+    sf::Vector2f topLeftBound = chunkStartingPos;
+    sf::Vector2f topRightBound = sf::Vector2f(chunkStartingPos.x + 16, chunkStartingPos.y);
+
+    return (player.x >= topLeftBound.x && player.x <= topRightBound.x && player.y <= bottomLeftBound.y && player.y >= topLeftBound.y);
 }
 
 sf::Vector2f Chunk::toIso(float x, float y) {
