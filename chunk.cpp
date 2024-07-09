@@ -24,7 +24,7 @@ void Chunk::setBlocks(int x, int y, const siv::PerlinNoise& p){
       double noiseValue = p.octave2D_01(((x + i) * 0.01), ((y + j) * 0.01), 4);
       double height  = (noiseValue * 10);
      
-      std::cout << (int)height << std::endl;
+      //std::cout << (int)height << std::endl;
       coords.push_back({x+i, y+j, (int)height}); 
       sf::VertexArray column(sf::Quads, (int)height * 4); 
       
