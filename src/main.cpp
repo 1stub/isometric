@@ -3,13 +3,14 @@
 
 int main(){
   sf::RenderWindow window(sf::VideoMode(1600, 900), "Isometric", sf::Style::Close);
-
+ 
 	const siv::PerlinNoise::seed_type seed = 123456u;
-
 	const siv::PerlinNoise p{ seed };
 
-  sf::View view(sf::FloatRect(0,0,1600,900));
-  chunkManager cm(p);
+  sf::View v(sf::FloatRect(0,0, Game::screenWidth, Game::screenHeight));
+  v.zoom(2.0f);
+
+  chunkManager cm(p, window, v);
 
   sf::Clock clock;
   
@@ -23,7 +24,7 @@ int main(){
     sf::Time deltaTime = clock.restart();
     
     window.clear();
-    cm.update(window, view, deltaTime);
+    cm.update();
     window.display();
   }
   return 0;
