@@ -8,6 +8,7 @@ Chunk::Chunk(){
   //tile size / 2 here accounts for the offset occuring when we rotate the map for the iso projection
   screenCenter = sf::Vector2f(Game::screenWidth/2.0f - Chunks::tileSize/2.0f, 
                               Game::screenHeight/2.0f - Chunks::tileSize/2.0f);
+  c_blocks.setPrimitiveType(sf::Quads);
 }
 
 void Chunk::setBlocks(sf::Vector2i coords, const siv::PerlinNoise& p){
@@ -16,9 +17,9 @@ void Chunk::setBlocks(sf::Vector2i coords, const siv::PerlinNoise& p){
       double noiseValue = p.octave2D_01(((coords.x + x) * 0.01), ((coords.y + y) * 0.01), 4);
       int height = static_cast<int>(noiseValue * 10); //represents height of column
       
-      sf::VertexArray column(sf::Quads, height * 4);
+      sf::Vertex column[height * 4];
       for(int z = 0; z < height; ++z){
-        sf::Vertex* quad = &column[z*4];
+        sf::Vertex *quad = &column[z*4];
         
         //Creates the isometric position in px for each coordinate in our map, then sets an offset for each block in height
         sf::Vector2f pos = toIso(coords.x + x, coords.y + y)
@@ -33,11 +34,18 @@ void Chunk::setBlocks(sf::Vector2i coords, const siv::PerlinNoise& p){
         quad[0].texCoords = sf::Vector2f(0, 0);
         quad[1].texCoords = sf::Vector2f(Chunks::tileSize, 0);
         quad[2].texCoords = sf::Vector2f(Chunks::tileSize, Chunks::tileSize);
-        quad[3].texCoords = sf::Vector2f(0, Chunks::tileSize);     
+        quad[3].texCoords = sf::Vector2f(0, Chunks::tileSize);    
+        
       }
-      c_blocks.push_back(column);
+      //populates c_verticies with all verticies in the column to be eventually rendered from c_blocks.
+      //Should be more efficient than sf::VertexArray since we have access to gpu to render blocks now
+      for(int i = 0; i < height * 4; ++i){
+        c_vertices.push_back(column[i]);
+      }
     }
   }
+  c_blocks.create(c_vertices.size());
+  c_blocks.update(c_vertices.data());
 }
 
 sf::Vector2f Chunk::toIso(float x, float y) {

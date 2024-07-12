@@ -3,7 +3,8 @@
 
 int main(){
   sf::RenderWindow window(sf::VideoMode(1600, 900), "Isometric", sf::Style::Close);
- 
+  window.setFramerateLimit(60);
+
 	const siv::PerlinNoise::seed_type seed = 123456u;
 	const siv::PerlinNoise p{ seed };
 

@@ -14,15 +14,16 @@ class Chunk : public sf::Transformable, public sf::Drawable{
   private:
     sf::Vector2f screenCenter;
     sf::Texture b_texture;
-    std::vector<sf::VertexArray> c_blocks; //contains verticies for each block in chunk
+
+    //convert to vertex buffer for better performance - allows conversation (lol) with gpu for rendering blocks
+    sf::VertexBuffer c_blocks; //contains verticies for each block in chunk
+    std::vector<sf::Vertex> c_vertices;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
       states.transform *= getTransform();
       states.texture = &b_texture;
-      for(const auto &block : c_blocks){
-          target.draw(block, states);
-      }
+      target.draw(c_blocks, states);
     }
 };
 
