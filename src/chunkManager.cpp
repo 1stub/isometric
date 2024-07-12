@@ -15,21 +15,26 @@ chunkManager::chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::V
 void chunkManager::update(){ 
   if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
     chunkPosition.y -= 1;
+    unloadChunk();
   }
   if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
     chunkPosition.x -= 1;
+    unloadChunk();
   }
   if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
     chunkPosition.y += 1;
+    unloadChunk();
   }
   if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
     chunkPosition.x += 1;
+    unloadChunk();
   }
 
   sf::Vector2f playerIsoPosition = toIso(static_cast<float>(chunkPosition.x) * Chunks::size, static_cast<float>(chunkPosition.y) * Chunks::size);
   view.setCenter(
      playerIsoPosition.x + screenCenter.x, playerIsoPosition.y + screenCenter.y
   );
+
   window.setView(view);
 
   renderChunks();
@@ -43,13 +48,20 @@ void chunkManager::loadChunk(int chunkX, int chunkY){
   if(chunks.find({chunkX, chunkY}) == chunks.end()){ 
     auto chunk = Chunk();
     chunk.setBlocks(blockCoords, perlin);
-    chunks[{blockCoords.x, blockCoords.y}] = chunk;
+    chunks[{chunkX, chunkY}] = chunk;
   }
-  window.draw(chunks[{blockCoords.x, blockCoords.y}]); 
+  window.draw(chunks[{chunkX, chunkY}]); 
 }
 
 void chunkManager::unloadChunk(){
-
+  for(auto it = chunks.begin(); it != chunks.end();){
+    if(std::abs(chunkPosition.x - it->first.first) > Manage::renderDistance || 
+       std::abs(chunkPosition.y - it->first.second) > Manage::renderDistance){
+      it = chunks.erase(it);
+    }else{
+      it++;
+    }
+  }
 }
 
 void chunkManager::renderChunks(){
