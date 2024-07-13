@@ -1,11 +1,11 @@
 CC = g++
 CFLAGS = -I/home/stub/repos/SFML/include -g
 LDFLAGS = -L/home/stub/repos/SFML/build/lib
-LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lGL
 
 # List your source files here
-IMGUI_DIR = ../include/imgui/imgui-master
-SOURCES =  chunk.cpp chunkManager.cpp main.cpp $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
+IMGUI_DIR = ../include/imgui
+SOURCES =  chunk.cpp chunkManager.cpp main.cpp $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp $(IMGUI_DIR)/imgui-SFML.cpp
 # Generate a list of object files from the source files
 OBJECTS = $(SOURCES:.cpp=.o)
 
