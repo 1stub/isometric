@@ -9,7 +9,7 @@
 class Chunk : public sf::Transformable, public sf::Drawable{
   public:
     Chunk();
-    void setBlocks(sf::Vector2i coords, const siv::PerlinNoise& p);
+    void setBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int octaves, int frequency);
     sf::Vector2f toIso(float x, float y);
   private:
     sf::Vector2f screenCenter;

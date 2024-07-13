@@ -11,11 +11,11 @@ Chunk::Chunk(){
   c_blocks.setPrimitiveType(sf::Quads);
 }
 
-void Chunk::setBlocks(sf::Vector2i coords, const siv::PerlinNoise& p){
+void Chunk::setBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int octaves, int frequency){
   for(int x = 0; x < Chunks::size; ++x){
     for(int y = 0; y < Chunks::size; ++y){
-      double noiseValue = p.octave2D_01(((coords.x + x) * 0.01), ((coords.y + y) * 0.01), 4);
-      int height = static_cast<int>(noiseValue * 10); //represents height of column
+      double noiseValue = p.octave2D_01(((coords.x + x) * 0.01), ((coords.y + y) * 0.01), octaves);
+      int height = static_cast<int>(noiseValue * frequency); //represents height of column
       
       sf::Vertex column[height * 4];
       for(int z = 0; z < height; ++z){

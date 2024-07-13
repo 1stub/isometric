@@ -1,3 +1,4 @@
+#include <random>
 #include <SFML/Graphics.hpp>
 #include "../debug/cpuUsage.hpp"
 #include "../include/imgui/imgui.h"
@@ -10,11 +11,17 @@ int main(){
 
   ImGui::SFML::Init(window);
 
-	const siv::PerlinNoise::seed_type seed = 123456u;
+  //logic for creating random number
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dis(100000, 999999);
+  int random_number = dis(gen);
+
+	const siv::PerlinNoise::seed_type seed = random_number;
 	const siv::PerlinNoise p{ seed };
 
   sf::View v(sf::FloatRect(0,0, Game::screenWidth, Game::screenHeight));
-  v.zoom(2.0f);
+  v.zoom(4.0f);
 
   chunkManager cm(p, window, v);
 
