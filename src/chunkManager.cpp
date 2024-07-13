@@ -47,7 +47,7 @@ void chunkManager::loadChunk(int chunkX, int chunkY){
   //chunk doesnt exist in map
   if(chunks.find({chunkX, chunkY}) == chunks.end()){ 
     auto chunk = Chunk();
-    chunk.setBlocks(blockCoords, perlin, 4, 16); //curently just testing with 8 and 16. eventually to be used in imgui
+    chunk.setBlocks(blockCoords, perlin, 6, 8); //curently just testing with 8 and 16. eventually to be used in imgui
     chunks[{chunkX, chunkY}] = chunk;
   }
   window.draw(chunks[{chunkX, chunkY}]); 

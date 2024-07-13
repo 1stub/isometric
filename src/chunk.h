@@ -6,6 +6,17 @@
 #include "constants.h"
 #include "perlin.hpp"
 
+// our block item with each blocks coords, not sure if I need this but will keep for now
+struct Block{
+  Block(int blockX, int blockY, int blockZ, bool air) : 
+    x(blockX), y(blockY), touchingAir(air), z(blockZ){}
+ 
+  bool touchingAir;
+  int x = 0;
+  int y = 0;
+  int z = 0;
+};
+
 class Chunk : public sf::Transformable, public sf::Drawable{
   public:
     Chunk();

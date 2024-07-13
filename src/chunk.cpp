@@ -14,6 +14,47 @@ Chunk::Chunk(){
 void Chunk::setBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int octaves, int frequency){
   for(int x = 0; x < Chunks::size; ++x){
     for(int y = 0; y < Chunks::size; ++y){
+      double noiseValue = p.octave2D_01(((coords.x + x) * 0.001), ((coords.y + y) * 0.001), octaves, 1);
+      int height = static_cast<int>(noiseValue * 50); //represents height of column
+      
+        sf::Vertex quad[4];
+        
+        //Creates the isometric position in px for each coordinate in our map, then sets an offset for each block in height
+        sf::Vector2f pos = toIso(coords.x + x, coords.y + y)
+                          + screenCenter - sf::Vector2f(0, height*(Chunks::tileSize/2.0f));
+        
+        // Set the positions of the 4 corners of the quad in isometric space
+        quad[0].position = pos;
+        quad[1].position = sf::Vector2f(pos.x + Chunks::tileSize, pos.y);
+        quad[2].position = sf::Vector2f(pos.x + Chunks::tileSize, pos.y + Chunks::tileSize);
+        quad[3].position = sf::Vector2f(pos.x, pos.y + Chunks::tileSize);
+
+        quad[0].texCoords = sf::Vector2f(0, 0);
+        quad[1].texCoords = sf::Vector2f(Chunks::tileSize, 0);
+        quad[2].texCoords = sf::Vector2f(Chunks::tileSize, Chunks::tileSize);
+        quad[3].texCoords = sf::Vector2f(0, Chunks::tileSize);    
+        
+      
+      //populates c_verticies with all verticies in the column to be eventually rendered from c_blocks.
+      //Should be more efficient than sf::VertexArray since we have access to gpu to render blocks now
+      for(int i = 0; i < 4; i++){
+        c_vertices.push_back(quad[i]);
+      }
+    }
+  }
+  c_blocks.create(c_vertices.size());
+  c_blocks.update(c_vertices.data());
+}
+
+sf::Vector2f Chunk::toIso(float x, float y) {
+    return sf::Vector2f((x - y) * (Chunks::tileSize / 2.0f), (x + y) * (Chunks::tileSize / 4.0f));
+}
+
+//old chunk rendering function
+/*
+void Chunk::setBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int octaves, int frequency){
+  for(int x = 0; x < Chunks::size; ++x){
+    for(int y = 0; y < Chunks::size; ++y){
       double noiseValue = p.octave2D_01(((coords.x + x) * 0.01), ((coords.y + y) * 0.01), octaves);
       int height = static_cast<int>(noiseValue * frequency); //represents height of column
       
@@ -47,7 +88,4 @@ void Chunk::setBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int octave
   c_blocks.create(c_vertices.size());
   c_blocks.update(c_vertices.data());
 }
-
-sf::Vector2f Chunk::toIso(float x, float y) {
-    return sf::Vector2f((x - y) * (Chunks::tileSize / 2.0f), (x + y) * (Chunks::tileSize / 4.0f));
-}
+*/
