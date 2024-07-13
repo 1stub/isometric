@@ -1,4 +1,6 @@
 #include <SFML/Graphics.hpp>
+#include "../debug/cpuUsage.hpp"
+#include "../include/imgui/imgui-master/imgui.h"
 #include "chunkManager.h"
 
 int main(){
@@ -23,8 +25,9 @@ int main(){
       }
     }
     sf::Time deltaTime = clock.restart();
-    
+
     window.clear();
+
     cm.update();
     window.display();
   }
