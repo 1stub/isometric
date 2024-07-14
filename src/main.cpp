@@ -21,7 +21,7 @@ int main(){
 	const siv::PerlinNoise p{ seed };
 
   sf::View v(sf::FloatRect(0,0, Game::screenWidth, Game::screenHeight));
-  float zoom = 5.0f;
+  float zoom = 4.0f;
   v.zoom(zoom);
 
   chunkManager cm(p, window, v);

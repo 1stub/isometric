@@ -20,7 +20,9 @@ struct Block{
 class Chunk : public sf::Transformable, public sf::Drawable{
   public:
     Chunk();
-    void setBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int octaves, int frequency);
+    void generateVoxelGrid(sf::Vector2i coords, const siv::PerlinNoise &p);
+    bool isExposed(int x, int y, int z);
+    void setVisibleBlocks(sf::Vector2i coords, const siv::PerlinNoise& p);
     sf::Vector2f toIso(float x, float y);
   private:
     sf::Vector2f screenCenter;
@@ -29,7 +31,7 @@ class Chunk : public sf::Transformable, public sf::Drawable{
     //convert to vertex buffer for better performance - allows conversation (lol) with gpu for rendering blocks
     sf::VertexBuffer c_blocks; //contains verticies for each block in chunk
     std::vector<sf::Vertex> c_vertices;
-
+    int voxelGrid[Chunks::size][Chunks::size][Chunks::maxHeight];
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
       states.transform *= getTransform();
