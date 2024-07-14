@@ -6,17 +6,6 @@
 #include "constants.h"
 #include "perlin.hpp"
 
-// our block item with each blocks coords, not sure if I need this but will keep for now
-struct Block{
-  Block(int blockX, int blockY, int blockZ, bool air) : 
-    x(blockX), y(blockY), touchingAir(air), z(blockZ){}
- 
-  bool touchingAir;
-  int x = 0;
-  int y = 0;
-  int z = 0;
-};
-
 class Chunk : public sf::Transformable, public sf::Drawable{
   public:
     Chunk();
@@ -31,7 +20,7 @@ class Chunk : public sf::Transformable, public sf::Drawable{
     //convert to vertex buffer for better performance - allows conversation (lol) with gpu for rendering blocks
     sf::VertexBuffer c_blocks; //contains verticies for each block in chunk
     std::vector<sf::Vertex> c_vertices;
-    int voxelGrid[Chunks::size][Chunks::size][Chunks::maxHeight];
+    int voxelGrid[Chunks::size + 2][Chunks::size + 2][Chunks::maxHeight];
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
       states.transform *= getTransform();

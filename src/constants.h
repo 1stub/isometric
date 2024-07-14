@@ -5,7 +5,7 @@
     const int size = 16; // 16x16 
     const int tileSize = 32; // 32x32 px tiles
     const int noiseScale = 10; // noise * 10
-    const int maxHeight = 32;
+    const int maxHeight = 64;
   }
 
   namespace Manage{

@@ -12,14 +12,17 @@ Chunk::Chunk(){
 }
 
 // for the entire 16x16x32 space I am working in this creates a value of -1 or 1 to determine whether the block exists here. Used in marching cubes algorithm.
+// the reason we have the -1 for starting values and x+1, y+1 in the assignment is due to the consideration of blocks just outside of the chunk.
+// this removes the need to fetch adjacent chunks but still allows for proper check to determien what block to render
 void Chunk::generateVoxelGrid(sf::Vector2i coords, const siv::PerlinNoise &p){
-  for(int x = 0; x < Chunks::size; ++x){
-    for(int y = 0; y < Chunks::size; ++y){
-      double noiseValue = p.octave2D_01(((coords.x + x) * 0.001), ((coords.y + y) * 0.001), 8, 1);
-      int height = static_cast<int>(noiseValue * 10);
+  for(int x = -1; x < Chunks::size + 1; ++x){
+    for(int y = -1; y < Chunks::size + 1; ++y){
+      double noiseValue = p.normalizedOctave2D_01(((coords.x + x) * 0.01), ((coords.y + y) * 0.01), 4, 1);
+      int height = static_cast<int>(noiseValue * 50);
+      //std::cout << height << std::endl;
 
       for(int z = 0; z < Chunks::maxHeight; ++z){
-        voxelGrid[x][y][z] = (z < height) ? 1 : -1;
+        voxelGrid[x+1][y+1][z] = (z < height) ? 1 : -1;
       }
     }
   }
@@ -27,20 +30,17 @@ void Chunk::generateVoxelGrid(sf::Vector2i coords, const siv::PerlinNoise &p){
 
 // we look into our grid and run necessary checks to determine whether the block is exposed
 bool Chunk::isExposed(int x, int y, int z){
-  if (voxelGrid[x][y][z] <= 0) return false;
+  if (voxelGrid[x+1][y+1][z] <= 0) return false;
 
-    // Check neighbors
-  if (x > 0 && voxelGrid[x - 1][y][z] <= 0) return true; // left
-  if (x < Chunks::size - 1 && voxelGrid[x + 1][y][z] <= 0) return true; // right
-  if (y > 0 && voxelGrid[x][y - 1][z] <= 0) return true; // top
-  if (y < Chunks::size - 1 && voxelGrid[x][y + 1][z] <= 0) return true; // bottom
-  if (z > 0 && voxelGrid[x][y][z - 1] <= 0) return true; // front
-  if (z < Chunks::maxHeight - 1 && voxelGrid[x][y][z + 1] <= 0) return true; // back
+  //I dont think all of these checks are necessary, leaving for now though
+  // Check neighbors in the expanded grid
+  if (voxelGrid[x][y + 1][z] <= 0) return true; // left
+  if (voxelGrid[x + 2][y + 1][z] <= 0) return true; // right
+  if (voxelGrid[x + 1][y][z] <= 0) return true; // top
+  if (voxelGrid[x + 1][y + 2][z] <= 0) return true; // bottom
+  if (z > 0 && voxelGrid[x + 1][y + 1][z - 1] <= 0) return true; // front
+  if (z < Chunks::maxHeight - 1 && voxelGrid[x + 1][y + 1][z + 1] <= 0) return true; // back
 
-    // Check if the block is on the edge of the map
-    /*if (x == 0 || x == Chunks::size - 1) return true;
-    if (y == 0 || y == Chunks::size - 1) return true;
-    if (z == 0 || z == Chunks::maxHeight - 1) return true;*/
 
   return false;
 }
@@ -90,42 +90,3 @@ sf::Vector2f Chunk::toIso(float x, float y) {
     return sf::Vector2f((x - y) * (Chunks::tileSize / 2.0f), (x + y) * (Chunks::tileSize / 4.0f));
 }
 
-//old chunk rendering function
-/*
-void Chunk::setBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int octaves, int frequency){
-  for(int x = 0; x < Chunks::size; ++x){
-    for(int y = 0; y < Chunks::size; ++y){
-      double noiseValue = p.octave2D_01(((coords.x + x) * 0.01), ((coords.y + y) * 0.01), octaves);
-      int height = static_cast<int>(noiseValue * frequency); //represents height of column
-      
-      sf::Vertex column[height * 4];
-      for(int z = 0; z < height; ++z){
-        sf::Vertex *quad = &column[z*4];
-        
-        //Creates the isometric position in px for each coordinate in our map, then sets an offset for each block in height
-        sf::Vector2f pos = toIso(coords.x + x, coords.y + y)
-                          + screenCenter - sf::Vector2f(0, z*(Chunks::tileSize/2.0f));
-        
-        // Set the positions of the 4 corners of the quad in isometric space
-        quad[0].position = pos;
-        quad[1].position = sf::Vector2f(pos.x + Chunks::tileSize, pos.y);
-        quad[2].position = sf::Vector2f(pos.x + Chunks::tileSize, pos.y + Chunks::tileSize);
-        quad[3].position = sf::Vector2f(pos.x, pos.y + Chunks::tileSize);
-
-        quad[0].texCoords = sf::Vector2f(0, 0);
-        quad[1].texCoords = sf::Vector2f(Chunks::tileSize, 0);
-        quad[2].texCoords = sf::Vector2f(Chunks::tileSize, Chunks::tileSize);
-        quad[3].texCoords = sf::Vector2f(0, Chunks::tileSize);    
-        
-      }
-      //populates c_verticies with all verticies in the column to be eventually rendered from c_blocks.
-      //Should be more efficient than sf::VertexArray since we have access to gpu to render blocks now
-      for(int i = 0; i < height * 4; ++i){
-        c_vertices.push_back(column[i]);
-      }
-    }
-  }
-  c_blocks.create(c_vertices.size());
-  c_blocks.update(c_vertices.data());
-}
-*/
