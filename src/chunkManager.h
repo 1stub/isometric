@@ -5,12 +5,12 @@
 
 class chunkManager{
   public:
-    chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::View &view, int octaves, float per);
-    void update(int newOct, float newPer);
+    chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::View &view, int octaves, float per, int newFreq);
+    void update(int newOct, float newPer, int newFreq);
     void updateNoise();
     void loadChunk(int chunkX, int chunkY, bool update);
     void unloadChunk();
-    void renderChunks();
+    void renderChunks(bool update);
   private:
     const siv::PerlinNoise &perlin;
     sf::RenderWindow &window;
@@ -19,6 +19,7 @@ class chunkManager{
     sf::Vector2f screenCenter;
     std::map<std::pair<int,int>, Chunk> chunks;
     int octaves;
+    int frequency;
     float persistence;
 };
 

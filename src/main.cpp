@@ -22,9 +22,10 @@ int main(){
   float zoom = 4.0f;
   v.zoom(zoom);
 
+  int frequency = 25;
   int octaves = 10;
   float persistence = 0.7;
-  chunkManager cm(p, window, v, octaves, persistence);
+  chunkManager cm(p, window, v, octaves, persistence, frequency);
 
   sf::Clock deltaClock; 
   while(window.isOpen()){
@@ -38,12 +39,13 @@ int main(){
     ImGui::SFML::Update(window, deltaClock.restart());
 
     ImGui::Begin("Options");
-    ImGui::SliderInt("Octaves", &octaves, 2, 16);
-    ImGui::SliderFloat("persistence", &persistence, 0.1, 1.5);
+    ImGui::SliderInt("Octaves", &octaves, 2, 32);
+    ImGui::SliderFloat("Persistence", &persistence, 0.1, 1.5);
+    ImGui::SliderInt("Frequency", &frequency, 1, 50);
     ImGui::End();
 
     window.clear();
-    cm.update(octaves, persistence);
+    cm.update(octaves, persistence, frequency);
     ImGui::SFML::Render(window);
     window.display();
   }

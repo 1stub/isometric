@@ -5,15 +5,17 @@ sf::Vector2f toIso(float x, float y) {
     return sf::Vector2f((x - y) * (Chunks::tileSize / 2.0f), (x + y) * (Chunks::tileSize / 4.0f));
 }
 
-chunkManager::chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::View &v, int oct, float per) : perlin(p), window(w), view(v), octaves(oct), persistence(per){
+chunkManager::chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::View &v, int oct, float per, int freq) 
+  : perlin(p), window(w), view(v), octaves(oct), persistence(per), frequency(freq){
   chunkPosition = sf::Vector2i(0,0);
   screenCenter = sf::Vector2f(Game::screenWidth/2.0f - Chunks::tileSize/2.0f, 
                               Game::screenHeight/2.0f - Chunks::tileSize/2.0f);
 }
 
-void chunkManager::update(int newOct, float newPer){
+void chunkManager::update(int newOct, float newPer, int newFreq){
   //we have new persistence and octaves values, need to update our map
   if(newOct != octaves || newPer != persistence){
+    frequency = newFreq;
     octaves = newOct;
     persistence = newPer;
     updateNoise();
@@ -42,13 +44,12 @@ void chunkManager::update(int newOct, float newPer){
 
   window.setView(view);
 
-  renderChunks();
+  renderChunks(false);
 }
 
+//Updates Noise values when it finds that octaves or persistence changed
 void chunkManager::updateNoise(){ 
-  for (auto& chunkPair : chunks) {
-    loadChunk(chunkPair.first.first, chunkPair.first.second, true);
-  }
+  renderChunks(true);
 }
 
 //we see if a chunk corresponding to this coord exists (in chunk coords not game), if it does just load, otherwise create and load
@@ -58,7 +59,7 @@ void chunkManager::loadChunk(int chunkX, int chunkY, bool update){
   auto chunkIter = chunks.find({chunkX, chunkY});
   if (chunkIter == chunks.end() || update) {
     auto chunk = Chunk();
-    chunk.setVisibleBlocks(blockCoords, perlin, octaves, persistence);
+    chunk.setVisibleBlocks(blockCoords, perlin, octaves, persistence, frequency);
     chunks[{chunkX, chunkY}] = chunk;
   }
   window.draw(chunks[{chunkX, chunkY}]);
@@ -75,11 +76,11 @@ void chunkManager::unloadChunk(){
   }
 }
 
-void chunkManager::renderChunks(){
+void chunkManager::renderChunks(bool update){
   //this creates the render view for the player, so in this case it would me Manage::renderDistance chunks that the player can see.
   for(int i = -Manage::renderDistance; i < Manage::renderDistance; ++i){
     for(int j = -Manage::renderDistance; j < Manage::renderDistance; ++j){
-      loadChunk(chunkPosition.x + i, chunkPosition.y + j, false);
+      loadChunk(chunkPosition.x + i, chunkPosition.y + j, update);
     }
   }
 }
