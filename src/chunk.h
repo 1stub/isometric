@@ -1,6 +1,8 @@
 #ifndef CHUNK_H
 #define CHUNK_H
 
+#include "../include/imgui/imgui.h" //attached imgui here just so its visible across main files
+#include "../include/imgui/imgui-SFML.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "constants.h"
@@ -9,9 +11,9 @@
 class Chunk : public sf::Transformable, public sf::Drawable{
   public:
     Chunk();
-    void generateVoxelGrid(sf::Vector2i coords, const siv::PerlinNoise &p);
+    void generateVoxelGrid(sf::Vector2i coords, const siv::PerlinNoise &p, int octaves, float persistence);
     bool isExposed(int x, int y, int z);
-    void setVisibleBlocks(sf::Vector2i coords, const siv::PerlinNoise& p);
+    void setVisibleBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int octaves, float persistence);
     sf::Vector2f toIso(float x, float y);
   private:
     sf::Vector2f screenCenter;

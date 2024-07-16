@@ -14,11 +14,11 @@ Chunk::Chunk(){
 // for the entire 16x16x32 space I am working in this creates a value of -1 or 1 to determine whether the block exists here. Used in marching cubes algorithm.
 // the reason we have the -1 for starting values and x+1, y+1 in the assignment is due to the consideration of blocks just outside of the chunk.
 // this removes the need to fetch adjacent chunks but still allows for proper check to determien what block to render
-void Chunk::generateVoxelGrid(sf::Vector2i coords, const siv::PerlinNoise &p){
+void Chunk::generateVoxelGrid(sf::Vector2i coords, const siv::PerlinNoise &p, int octaves, float persistence){
   for(int x = -1; x < Chunks::size + 1; ++x){
     for(int y = -1; y < Chunks::size + 1; ++y){
-      double noiseValue = p.normalizedOctave2D_01(((coords.x + x) * 0.01), ((coords.y + y) * 0.01), 4, 1);
-      int height = static_cast<int>(noiseValue * 50);
+      double noiseValue = p.normalizedOctave2D_01(((coords.x + x) * 0.01), ((coords.y + y) * 0.01), octaves, persistence);
+      int height = static_cast<int>(noiseValue * 10);
       //std::cout << height << std::endl;
 
       for(int z = 0; z < Chunks::maxHeight; ++z){
@@ -49,13 +49,12 @@ bool Chunk::isExposed(int x, int y, int z){
 // if it is exposed then we will need to draw it since the player can see it.
 // so we would just create all the verticies necessary and apply textures to make it visibile
 // pushing into the c_blocks buffer to be draw later
-void Chunk::setVisibleBlocks(sf::Vector2i coords, const siv::PerlinNoise& p){
-  generateVoxelGrid(coords, p);
+void Chunk::setVisibleBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int octaves, float persistence){
+  generateVoxelGrid(coords, p, octaves, persistence);
   for(int x = 0; x < Chunks::size; ++x){
     for(int y = 0; y < Chunks::size; ++y){
       for(int z = 0; z < Chunks::maxHeight; z++){
         if(isExposed(x, y, z)){
-          
           sf::Vertex quad[4];
           
           //Creates the isometric position in px for each coordinate in our map, then sets an offset for each block in height

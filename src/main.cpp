@@ -1,8 +1,6 @@
 #include <random>
 #include <SFML/Graphics.hpp>
 #include "../debug/cpuUsage.hpp"
-#include "../include/imgui/imgui.h"
-#include "../include/imgui/imgui-SFML.h"
 #include "chunkManager.h"
 
 int main(){
@@ -24,19 +22,31 @@ int main(){
   float zoom = 4.0f;
   v.zoom(zoom);
 
-  chunkManager cm(p, window, v);
+  int octaves = 10;
+  float persistence = 0.7;
+  chunkManager cm(p, window, v, octaves, persistence);
 
   sf::Clock deltaClock; 
   while(window.isOpen()){
     sf::Event e;
     while(window.pollEvent(e)){
+      ImGui::SFML::ProcessEvent(window,e);
       if(e.type == sf::Event::Closed){
         window.close();
       }
     }
+    ImGui::SFML::Update(window, deltaClock.restart());
+
+    ImGui::Begin("Options");
+    ImGui::SliderInt("Octaves", &octaves, 2, 16);
+    ImGui::SliderFloat("persistence", &persistence, 0.1, 1.5);
+    ImGui::End();
+
     window.clear();
-    cm.update();
+    cm.update(octaves, persistence);
+    ImGui::SFML::Render(window);
     window.display();
   }
+  ImGui::SFML::Shutdown();
   return 0;
 }
