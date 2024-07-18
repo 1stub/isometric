@@ -55,14 +55,13 @@ void chunkManager::updateNoise(){
 //we see if a chunk corresponding to this coord exists (in chunk coords not game), if it does just load, otherwise create and load
 void chunkManager::loadChunk(int chunkX, int chunkY, bool update){  
   sf::Vector2i blockCoords(chunkX * Chunks::size, chunkY * Chunks::size); // converted from chunk space to blocks in game space
-
+ 
   auto chunkIter = chunks.find({chunkX, chunkY});
   if (chunkIter == chunks.end() || update) {
     auto chunk = Chunk();
     chunk.setVisibleBlocks(blockCoords, perlin, octaves, persistence, frequency);
     chunks[{chunkX, chunkY}] = chunk;
   }
-  window.draw(chunks[{chunkX, chunkY}]);
 }
 
 void chunkManager::unloadChunk(){
@@ -78,9 +77,13 @@ void chunkManager::unloadChunk(){
 
 void chunkManager::renderChunks(bool update){
   //this creates the render view for the player, so in this case it would me Manage::renderDistance chunks that the player can see.
-  for(int i = -Manage::renderDistance; i < Manage::renderDistance; ++i){
-    for(int j = -Manage::renderDistance; j < Manage::renderDistance; ++j){
+  for(int i = -Manage::renderDistance; i <= Manage::renderDistance; ++i){
+    for(int j = -Manage::renderDistance; j <= Manage::renderDistance; ++j){
       loadChunk(chunkPosition.x + i, chunkPosition.y + j, update);
     }
+  }
+
+  for(auto &pair : chunks){
+    window.draw(pair.second);
   }
 }
