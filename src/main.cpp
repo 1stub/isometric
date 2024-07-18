@@ -25,7 +25,8 @@ int main(){
   int frequency = 25;
   int octaves = 10;
   float persistence = 0.7;
-  chunkManager cm(p, window, v, octaves, persistence, frequency); //, Chunks::size * Chunks::size
+  int num_threads = std::thread::hardware_concurrency();
+  chunkManager cm(p, window, v, octaves, persistence, frequency, num_threads); //, Chunks::size * Chunks::size
 
   sf::Clock deltaClock; 
   while(window.isOpen()){

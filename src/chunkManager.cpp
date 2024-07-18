@@ -5,8 +5,8 @@ sf::Vector2f toIso(float x, float y) {
     return sf::Vector2f((x - y) * (Chunks::tileSize / 2.0f), (x + y) * (Chunks::tileSize / 4.0f));
 }
 
-chunkManager::chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::View &v, int oct, float per, int freq) 
-  : perlin(p), window(w), view(v), octaves(oct), persistence(per), frequency(freq){
+chunkManager::chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::View &v, int oct, float per, int freq, int num_threads) 
+  : perlin(p), window(w), view(v), octaves(oct), persistence(per), frequency(freq), pool(num_threads){
   chunkPosition = sf::Vector2i(0,0);
   screenCenter = sf::Vector2f(Game::screenWidth/2.0f - Chunks::tileSize/2.0f, 
                               Game::screenHeight/2.0f - Chunks::tileSize/2.0f);
@@ -45,6 +45,8 @@ void chunkManager::update(int newOct, float newPer, int newFreq){
   window.setView(view);
 
   renderChunks(false);
+  //std::cout << "pool " << pool.size() << std::endl;
+  //std::cout << "chunks " << chunks.size() << std::endl;
 }
 
 //Updates Noise values when it finds that octaves or persistence changed
@@ -77,11 +79,19 @@ void chunkManager::unloadChunk(){
 
 void chunkManager::renderChunks(bool update){
   //this creates the render view for the player, so in this case it would me Manage::renderDistance chunks that the player can see.
-  for(int i = -Manage::renderDistance; i <= Manage::renderDistance; ++i){
-    for(int j = -Manage::renderDistance; j <= Manage::renderDistance; ++j){
-      loadChunk(chunkPosition.x + i, chunkPosition.y + j, update);
-    }
-  }
+    const int totalChunks = chunks.size();
+  pool.detach_blocks(-Manage::renderDistance, Manage::renderDistance,
+        [this, update](const int startX, const int endX)
+        {
+            for (int x = startX; x < endX; ++x) {
+               for(int y = -Manage::renderDistance; y < Manage::renderDistance; ++y) 
+                this->loadChunk(x, y, update);
+            }
+        }
+    ); 
+
+
+  pool.wait();
 
   for(auto &pair : chunks){
     window.draw(pair.second);
