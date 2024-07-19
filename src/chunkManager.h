@@ -3,6 +3,7 @@
 
 #include <thread>
 #include <mutex>
+#include <vector>
 
 #include "threadpool.hpp"
 #include "chunk.h"
@@ -21,7 +22,6 @@ class chunkManager{
     sf::View &view;
     sf::Vector2i chunkPosition;
     sf::Vector2f screenCenter;
-    BS::thread_pool pool;
     std::map<std::pair<int,int>, Chunk> chunks;
     int octaves;
     int frequency;

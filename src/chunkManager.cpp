@@ -10,6 +10,8 @@ chunkManager::chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::V
   chunkPosition = sf::Vector2i(0,0);
   screenCenter = sf::Vector2f(Game::screenWidth/2.0f - Chunks::tileSize/2.0f, 
                               Game::screenHeight/2.0f - Chunks::tileSize/2.0f);
+  std::cout << chunksToRender.size() << std::endl;
+  
 }
 
 void chunkManager::update(int newOct, float newPer, int newFreq){
@@ -45,8 +47,7 @@ void chunkManager::update(int newOct, float newPer, int newFreq){
   window.setView(view);
 
   renderChunks(false);
-  //std::cout << "pool " << pool.size() << std::endl;
-  //std::cout << "chunks " << chunks.size() << std::endl;
+
 }
 
 //Updates Noise values when it finds that octaves or persistence changed
@@ -54,10 +55,11 @@ void chunkManager::updateNoise(){
   renderChunks(true);
 }
 
+
 //we see if a chunk corresponding to this coord exists (in chunk coords not game), if it does just load, otherwise create and load
 void chunkManager::loadChunk(int chunkX, int chunkY, bool update){  
   sf::Vector2i blockCoords(chunkX * Chunks::size, chunkY * Chunks::size); // converted from chunk space to blocks in game space
- 
+
   auto chunkIter = chunks.find({chunkX, chunkY});
   if (chunkIter == chunks.end() || update) {
     auto chunk = Chunk();
@@ -78,20 +80,11 @@ void chunkManager::unloadChunk(){
 }
 
 void chunkManager::renderChunks(bool update){
-  //this creates the render view for the player, so in this case it would me Manage::renderDistance chunks that the player can see.
-    const int totalChunks = chunks.size();
-  pool.detach_blocks(-Manage::renderDistance, Manage::renderDistance,
-        [this, update](const int startX, const int endX)
-        {
-            for (int x = startX; x < endX; ++x) {
-               for(int y = -Manage::renderDistance; y < Manage::renderDistance; ++y) 
-                this->loadChunk(x, y, update);
-            }
-        }
-    ); 
-
-
-  pool.wait();
+  for(int i = -Manage::renderDistance; i <= Manage::renderDistance; ++i){
+    for(int j = -Manage::renderDistance; j <= Manage::renderDistance; ++j){
+      loadChunk(chunkPosition.x + i, chunkPosition.y + j, update);
+    }
+  }
 
   for(auto &pair : chunks){
     window.draw(pair.second);
