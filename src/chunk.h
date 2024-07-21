@@ -8,11 +8,16 @@
 #include "constants.h"
 #include "perlin.hpp"
 
+struct Block{
+  int tex;
+};
+
 class Chunk : public sf::Transformable, public sf::Drawable{
   public:
     Chunk();
     void generateVoxelGrid(sf::Vector2i coords, const siv::PerlinNoise &p, int octaves, float persistence, int frequency);
     bool isExposed(int x, int y, int z);
+    void setTexture(int x, int y, int z, sf::Vertex *quad);
     void setVisibleBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int octaves, float persistence, int frequency);
     sf::Vector2f toIso(float x, float y);
   private:
@@ -21,7 +26,8 @@ class Chunk : public sf::Transformable, public sf::Drawable{
 
     //convert to vertex buffer for better performance - allows conversation (lol) with gpu for rendering blocks
     sf::VertexBuffer c_blocks; //contains verticies for each block in chunk
-    std::vector<sf::Vertex> c_vertices;
+    std::vector<sf::Vertex> c_vertices; //used for insertion into buffer
+    std::vector<sf::Vertex> water_vertices;
     int voxelGrid[Chunks::size + 2][Chunks::size + 2][Chunks::maxHeight];
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
     {

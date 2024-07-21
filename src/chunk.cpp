@@ -1,10 +1,11 @@
 #include "chunk.h"
 #include "constants.h"
 
-Chunk::Chunk(){
-  if(!b_texture.loadFromFile("../img/grass.png")){
+Chunk::Chunk(){  
+  if(!(b_texture.loadFromFile("../img/atlas.png"))){
     std::cout << "couldnt load tile" << std::endl;
   }
+
   //tile size / 2 here accounts for the offset occuring when we rotate the map for the iso projection
   screenCenter = sf::Vector2f(Game::screenWidth/2.0f - Chunks::tileSize/2.0f, 
                               Game::screenHeight/2.0f - Chunks::tileSize/2.0f);
@@ -45,6 +46,17 @@ bool Chunk::isExposed(int x, int y, int z){
   return false;
 }
 
+void Chunk::setTexture(int x, int y, int z, sf::Vertex *quad){
+  int start = 0;
+  if( z <= 8){
+    start += Chunks::tileSize;
+  }else if(z == 9) start = Chunks::tileSize * 2;
+  quad[0].texCoords = sf::Vector2f(0 + start, 0);
+  quad[1].texCoords = sf::Vector2f(Chunks::tileSize + start, 0);
+  quad[2].texCoords = sf::Vector2f(Chunks::tileSize + start, Chunks::tileSize);
+  quad[3].texCoords = sf::Vector2f(0 + start, Chunks::tileSize);  
+}
+
 // the idea here is to go through each value created in the voxelGrid and see if it is exposed
 // if it is exposed then we will need to draw it since the player can see it.
 // so we would just create all the verticies necessary and apply textures to make it visibile
@@ -56,7 +68,10 @@ void Chunk::setVisibleBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int
       for(int z = 0; z < Chunks::maxHeight; z++){
         if(isExposed(x, y, z)){
           sf::Vertex quad[4];
-          
+          if(z <= 8){ //water
+            z = 8; 
+          }
+
           //Creates the isometric position in px for each coordinate in our map, then sets an offset for each block in height
           sf::Vector2f pos = toIso(coords.x + x, coords.y + y)
                             + screenCenter - sf::Vector2f(0, z*(Chunks::tileSize/2.0f));
@@ -67,15 +82,12 @@ void Chunk::setVisibleBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int
           quad[2].position = sf::Vector2f(pos.x + Chunks::tileSize, pos.y + Chunks::tileSize);
           quad[3].position = sf::Vector2f(pos.x, pos.y + Chunks::tileSize);
 
-          quad[0].texCoords = sf::Vector2f(0, 0);
-          quad[1].texCoords = sf::Vector2f(Chunks::tileSize, 0);
-          quad[2].texCoords = sf::Vector2f(Chunks::tileSize, Chunks::tileSize);
-          quad[3].texCoords = sf::Vector2f(0, Chunks::tileSize); 
+          setTexture(x, y, z, quad);
 
           //populates c_verticies with all verticies in the column to be eventually rendered from c_blocks.
           //Should be more efficient than sf::VertexArray since we have access to gpu to render blocks now
-          for(int i = 0; i < 4; i++){
-            c_vertices.push_back(quad[i]);
+          for(int i = 0; i < 4; ++i){       
+              c_vertices.push_back(quad[i]); 
           }
         } 
       }

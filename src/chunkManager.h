@@ -5,12 +5,11 @@
 #include <mutex>
 #include <vector>
 
-#include "threadpool.hpp"
 #include "chunk.h"
 
 class chunkManager{
   public:
-    chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::View &view, int octaves, float per, int newFreq, int num_threads); //, int num_threads
+    chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::View &view, int octaves, float per, int newFreq); //, int num_threads
     void update(int newOct, float newPer, int newFreq);
     void updateNoise();
     void loadChunk(int chunkX, int chunkY, bool update);

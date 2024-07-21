@@ -5,12 +5,11 @@ sf::Vector2f toIso(float x, float y) {
     return sf::Vector2f((x - y) * (Chunks::tileSize / 2.0f), (x + y) * (Chunks::tileSize / 4.0f));
 }
 
-chunkManager::chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::View &v, int oct, float per, int freq, int num_threads) 
-  : perlin(p), window(w), view(v), octaves(oct), persistence(per), frequency(freq), pool(num_threads){
+chunkManager::chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::View &v, int oct, float per, int freq) 
+  : perlin(p), window(w), view(v), octaves(oct), persistence(per), frequency(freq){
   chunkPosition = sf::Vector2i(0,0);
   screenCenter = sf::Vector2f(Game::screenWidth/2.0f - Chunks::tileSize/2.0f, 
                               Game::screenHeight/2.0f - Chunks::tileSize/2.0f);
-  std::cout << chunksToRender.size() << std::endl;
   
 }
 

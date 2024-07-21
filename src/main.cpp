@@ -22,11 +22,10 @@ int main(){
   float zoom = 4.0f;
   v.zoom(zoom);
 
-  int frequency = 25;
+  int frequency = 23;
   int octaves = 10;
   float persistence = 0.7;
-  int num_threads = std::thread::hardware_concurrency();
-  chunkManager cm(p, window, v, octaves, persistence, frequency, num_threads); //, Chunks::size * Chunks::size
+  chunkManager cm(p, window, v, octaves, persistence, frequency);
 
   sf::Clock deltaClock; 
   while(window.isOpen()){
