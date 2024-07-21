@@ -9,7 +9,7 @@
   }
 
   namespace Manage{
-    const int renderDistance = 7;
+    const int renderDistance = 15;
   }
   
   namespace Game{

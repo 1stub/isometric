@@ -22,9 +22,9 @@ int main(){
   float zoom = 4.0f;
   v.zoom(zoom);
 
-  int frequency = 23;
-  int octaves = 10;
-  float persistence = 0.7;
+  float frequency = 0.01;
+  int octaves = 8;
+  float persistence = 0.3;
   chunkManager cm(p, window, v, octaves, persistence, frequency);
 
   sf::Clock deltaClock; 
@@ -41,7 +41,7 @@ int main(){
     ImGui::Begin("Options");
     ImGui::SliderInt("Octaves", &octaves, 2, 32);
     ImGui::SliderFloat("Persistence", &persistence, 0.1, 1.5);
-    ImGui::SliderInt("Frequency", &frequency, 1, 50);
+    ImGui::SliderFloat("Frequency", &frequency, 0.0f, 0.1f);
     ImGui::End();
 
     window.clear();

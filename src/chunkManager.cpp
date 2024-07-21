@@ -5,7 +5,7 @@ sf::Vector2f toIso(float x, float y) {
     return sf::Vector2f((x - y) * (Chunks::tileSize / 2.0f), (x + y) * (Chunks::tileSize / 4.0f));
 }
 
-chunkManager::chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::View &v, int oct, float per, int freq) 
+chunkManager::chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::View &v, int oct, float per, float freq) 
   : perlin(p), window(w), view(v), octaves(oct), persistence(per), frequency(freq){
   chunkPosition = sf::Vector2i(0,0);
   screenCenter = sf::Vector2f(Game::screenWidth/2.0f - Chunks::tileSize/2.0f, 
@@ -13,9 +13,9 @@ chunkManager::chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::V
   
 }
 
-void chunkManager::update(int newOct, float newPer, int newFreq){
+void chunkManager::update(int newOct, float newPer, float newFreq){
   //we have new persistence and octaves values, need to update our map
-  if(newOct != octaves || newPer != persistence){
+  if(newOct != octaves || newPer != persistence || newFreq != frequency){
     frequency = newFreq;
     octaves = newOct;
     persistence = newPer;

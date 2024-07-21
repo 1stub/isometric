@@ -15,10 +15,10 @@ struct Block{
 class Chunk : public sf::Transformable, public sf::Drawable{
   public:
     Chunk();
-    void generateVoxelGrid(sf::Vector2i coords, const siv::PerlinNoise &p, int octaves, float persistence, int frequency);
+    void generateVoxelGrid(sf::Vector2i coords, const siv::PerlinNoise &p, int octaves, float persistence, float frequency);
     bool isExposed(int x, int y, int z);
     void setTexture(int x, int y, int z, sf::Vertex *quad);
-    void setVisibleBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int octaves, float persistence, int frequency);
+    void setVisibleBlocks(sf::Vector2i coords, const siv::PerlinNoise& p, int octaves, float persistence, float frequency);
     sf::Vector2f toIso(float x, float y);
   private:
     sf::Vector2f screenCenter;
