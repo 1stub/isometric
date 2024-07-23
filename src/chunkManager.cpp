@@ -1,6 +1,8 @@
 #include "chunkManager.h"
 #include "constants.h"
 
+static std::mutex mtx;
+
 sf::Vector2f toIso(float x, float y) {
     return sf::Vector2f((x - y) * (Chunks::tileSize / 2.0f), (x + y) * (Chunks::tileSize / 4.0f));
 }
@@ -10,10 +12,10 @@ chunkManager::chunkManager(const siv::PerlinNoise &p, sf::RenderWindow &w, sf::V
   chunkPosition = sf::Vector2i(0,0);
   screenCenter = sf::Vector2f(Game::screenWidth/2.0f - Chunks::tileSize/2.0f, 
                               Game::screenHeight/2.0f - Chunks::tileSize/2.0f);
-  
+  renderChunks(false);
 }
 
-void chunkManager::update(int newOct, float newPer, float newFreq){
+void chunkManager::update(int newOct, float newPer, float newFreq){ 
   //we have new persistence and octaves values, need to update our map
   if(newOct != octaves || newPer != persistence || newFreq != frequency){
     frequency = newFreq;
@@ -21,7 +23,7 @@ void chunkManager::update(int newOct, float newPer, float newFreq){
     persistence = newPer;
     updateNoise();
   }
-  if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
     chunkPosition.y -= 1;
     unloadChunk();
   }
@@ -48,6 +50,33 @@ void chunkManager::update(int newOct, float newPer, float newFreq){
   renderChunks(false);
 
 }
+
+/*static Chunk generateChunk(int chunkX, int chunkY, std::map<std::pair<int,int>, Chunk> *chunkToLoad,
+    const siv::PerlinNoise &perlin, int octaves, float persistence, float frequency) {
+    sf::Vector2i blockCoords(chunkX * Chunks::size, chunkY * Chunks::size);
+    Chunk chunk;
+    std::lock_guard<std::mutex> lock(mtx);
+    chunk.setVisibleBlocks(blockCoords, perlin, octaves, persistence, frequency);
+    return chunk;
+}
+
+/*void chunkManager::updateChunks() {
+  std::vector<std::pair<int, int>> chunkCoords;
+  for(int i = -Manage::renderDistance; i <= Manage::renderDistance; ++i){
+    for(int j = -Manage::renderDistance; j <= Manage::renderDistance; ++j){
+      int chunkX = chunkPosition.x + i;
+      int chunkY = chunkPosition.y + j;
+      chunkCoords.emplace_back(chunkX, chunkY);
+      futures.push_back(std::async(std::launch::async, generateChunk, chunkPosition.x + i, chunkPosition.y + j,
+          &chunkToLoad, perlin, octaves, persistence, frequency)); 
+    }
+  }
+  for (size_t i = 0; i < futures.size(); ++i) {
+      Chunk chunk = futures[i].get();
+      std::lock_guard<std::mutex> lock(mtx);
+      chunks[chunkCoords[i]] = chunk;
+  }
+}*/
 
 //Updates Noise values when it finds that octaves or persistence changed
 void chunkManager::updateNoise(){ 
